@@ -1,59 +1,59 @@
 #!/bin/bash
 set -uo pipefail
 
-# Percorsi assoluti dentro il container durante la build
-# Dato che monti build_files in /ctx, il percorso diventa questo:
 readonly BASE_PATH="/ctx/plasma6-macos-3.6/plasma6-macos"
 readonly ASSETS_DIR="${BASE_PATH}/assets"
 readonly SKEL_CONFIG="/etc/skel/.config"
 
-echo "6799;🔍 Verifico presenza file in: ${ASSETS_DIR}"
+echo "6799;🛠️ Fix Visibilità Temi e Permessi..."
 
-# --- 1. PRE-REQUISITI ---
-# Forza l'installazione di unzip prima di ogni altra cosa
-dnf install -y unzip zip || true
+# --- 1. PREPARAZIONE DIRECTORY DI SISTEMA ---
+# Assicuriamoci che i percorsi siano quelli standard di KDE Plasma 6
+mkdir -p /usr/share/themes \
+         /usr/share/icons \
+         /usr/share/fonts \
+         /usr/share/aurorae/themes \
+         /usr/share/plasma/desktoptheme \
+         /usr/share/plasma/look-and-feel \
+         /usr/share/plasma/plasmoids \
+         /usr/share/Kvantum \
+         /usr/share/wallpapers
 
-# --- 2. CONTROLLO ASSETS ---
-if [ ! -d "$ASSETS_DIR" ]; then
-    echo "❌ ERRORE: La cartella assets non esiste in ${ASSETS_DIR}"
-    ls -R /ctx # Debug per vedere cosa c'è effettivamente nel mount
-    exit 1
-fi
+# --- 2. ESTRAZIONE MIRATA ---
+# Usiamo -j (junk paths) dove necessario o verifichiamo la struttura
+echo "📦 Estrazione Asset..."
 
-# --- 3. ESTRAZIONE (Con percorsi forzati) ---
-echo "📦 Estrazione componenti sistema..."
-mkdir -p /usr/share/themes /usr/share/icons /usr/share/fonts /usr/share/aurorae/themes /usr/share/plasma/plasmoids
+unzip -o "${ASSETS_DIR}/plasma6macos-plasma-theme.zip" "aurorae/*" -d /usr/share/ || true
+unzip -o "${ASSETS_DIR}/plasma6macos-plasma-theme.zip" "plasma/desktoptheme/*" -d /usr/share/ || true
+unzip -o "${ASSETS_DIR}/plasma6macos-plasma-theme.zip" "plasma/look-and-feel/*" -d /usr/share/ || true
 
-# Estrazione temi e icone
-unzip -o "${ASSETS_DIR}/plasma6macos-plasma-theme.zip" "aurorae/*" -d /usr/share/ || echo "Salto plasma-theme"
-unzip -o "${ASSETS_DIR}/plasma6macos-gtk-theme.zip" -d /usr/share/themes/ || echo "Salto gtk-theme"
-unzip -o "${ASSETS_DIR}/plasma6macos-icons.zip" -d /usr/share/icons/ || echo "Salto icons"
-unzip -o "${ASSETS_DIR}/plasma6macos-fonts.zip" -d /usr/share/fonts/ || echo "Salto fonts"
-unzip -o "${ASSETS_DIR}/plasma6macos-wallpapers.zip" -d / || echo "Salto wallpapers"
-unzip -o "${ASSETS_DIR}/plasma6macos-plasmoids.zip" "plasmoids/*" -d /usr/share/plasma/ || echo "Salto plasmoids"
+unzip -o "${ASSETS_DIR}/plasma6macos-gtk-theme.zip" -d /usr/share/themes/ || true
+unzip -o "${ASSETS_DIR}/plasma6macos-icons.zip" -d /usr/share/icons/ || true
+unzip -o "${ASSETS_DIR}/plasma6macos-fonts.zip" -d /usr/share/fonts/ || true
+unzip -o "${ASSETS_DIR}/plasma6macos-wallpapers.zip" -d / || true
+unzip -o "${ASSETS_DIR}/plasma6macos-plasmoids.zip" "plasmoids/*" -d /usr/share/plasma/ || true
 
-# --- 4. CONFIGURAZIONE DEFAULT (/etc/skel) ---
-echo "⚙️ Configurazione default utente in /etc/skel..."
+# --- 3. IL FIX DEI PERMESSI (Fondamentale per uBlue) ---
+# Se i file estratti hanno permessi restrittivi, l'utente non li vedrà mai
+echo "🔐 Normalizzazione permessi in /usr/share..."
+find /usr/share/themes /usr/share/icons /usr/share/fonts /usr/share/plasma /usr/share/aurorae -type d -exec chmod 755 {} +
+find /usr/share/themes /usr/share/icons /usr/share/fonts /usr/share/plasma /usr/share/aurorae -type f -exec chmod 644 {} +
+
+# --- 4. CONFIGURAZIONE /ETC/SKEL ---
+echo "⚙️ Preparazione configurazioni utente..."
 mkdir -p "$SKEL_CONFIG"
+unzip -o "${ASSETS_DIR}/plasma6macos-kde-config.zip" -d /etc/skel/ || true
 
-# Estrai le config KDE
-unzip -o "${ASSETS_DIR}/plasma6macos-kde-config.zip" -d /etc/skel/ || echo "Salto kde-configs"
-
-# Fix specifico per il layout della Navbar (fondamentale per uBlue)
-if [ -f "/etc/skel/.config/plasma-org.kde.plasma.desktop-appletsrc" ]; then
-    cp /etc/skel/.config/plasma-org.kde.plasma.desktop-appletsrc "$SKEL_CONFIG/"
-fi
-
-# --- 5. TWEAKS (Integrati) ---
-echo "🌙 Applicazione Kvantum e Dark Mode..."
-mkdir -p "$SKEL_CONFIG/Kvantum"
-echo -e "[General]\ntheme=MacSequoiaDark" > "$SKEL_CONFIG/Kvantum/kvantum.kvconfig"
-
-# --- 6. PULIZIA PERCORSI "STEVE" ---
-# Elimina i link rotti che puntano alla home originale dello sviluppatore
-find /etc/skel -type l -delete
-
-# Sostituzione testuale dei percorsi hardcoded nei file config
+# Bonifica percorsi "Steve" nei file di testo
 find /etc/skel/.config -type f -exec sed -i 's|/home/steve/|/etc/skel/|g' {} +
+# Se l'utente esiste già, cercherà comunque i file in .local, forziamo il sistema:
+find /etc/skel/.config -type f -exec sed -i 's|/etc/skel/.local/share/|/usr/share/|g' {} +
 
-echo "✅ Installazione completata correttamente!"
+# --- 5. FORZATURA TEMA GLOBALE ---
+# Scriviamo direttamente nel kdeglobals dello skeleton quale tema caricare
+cat <<EOF >> /etc/skel/.config/kdeglobals
+[KDE]
+LookAndFeelPackage=com.github.vinceliuice.MacSequoia-Dark
+EOF
+
+echo "✅ Script terminato. Ora i temi sono leggibili da ogni utente."
