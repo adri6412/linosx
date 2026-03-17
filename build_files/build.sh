@@ -30,3 +30,31 @@ unzip plasma6-macos-3.6.zip
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
+
+# Create autostart script for first login
+cat << 'AUTOSTART' > /usr/bin/install-mac-theme-first-login.sh
+#!/bin/bash
+if [ ! -f "$HOME/.config/mac-theme-installed" ]; then
+    if [ -x "/osx/plasma6-macos-3.6/install.sh" ]; then
+        /osx/plasma6-macos-3.6/install.sh
+    else
+        bash /osx/plasma6-macos-3.6/install.sh
+    fi
+    mkdir -p "$HOME/.config"
+    touch "$HOME/.config/mac-theme-installed"
+fi
+AUTOSTART
+chmod +x /usr/bin/install-mac-theme-first-login.sh
+
+# Create XDG autostart entry
+mkdir -p /etc/xdg/autostart
+cat << 'DESKTOP' > /etc/xdg/autostart/install-mac-theme.desktop
+[Desktop Entry]
+Type=Application
+Exec=/usr/bin/install-mac-theme-first-login.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Install Mac Theme
+Comment=Installs Mac Theme on first login
+DESKTOP
