@@ -22,6 +22,3 @@ dnf5 install -y tmux
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
-cd plasma6-macos-3.6/plasma6-macos
-./install.sh
-./tweaks.sh
