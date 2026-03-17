@@ -13,13 +13,11 @@ set -ouex pipefail
 dnf5 install -y tmux 
 
 # Install MacTahoe-kde theme
-cd /tmp/
+mkdir /osx/
+chmod 755 /osx/
+cd /osx/
 wget https://file.adrianofrongillo.ovh/s/YBLwjxKJmLyNdSE/download/plasma6-macos-3.6.zip
 unzip plasma6-macos-3.6.zip
-cd plasma6-macos
-chmod +x install.sh
-./install.sh
-cd /
 
 
 # Use a COPR Example:
