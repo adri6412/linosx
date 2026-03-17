@@ -32,7 +32,6 @@ dnf remove -y \
     gnome-session \
     nautilus \
     mutter \
-    --nodeps
 
 # 2. Installazione del Desktop Environment Pantheon
 # Il gruppo 'pantheon-desktop' contiene tutto il necessario per elementary OS
