@@ -8,14 +8,13 @@ set -ouex pipefail
 # Questo installa tmux (dal tuo script originale)
 dnf5 install -y tmux 
 
-# 1. Installazione del nuovo Desktop e del Display Manager
-# Installiamo Budgie e LightDM PRIMA di rimuovere KDE, 
-# per assicurarci che lo stack grafico rimanga intatto.
-echo "Installazione Budgie Desktop e LightDM..."
-dnf5 install -y @budgie-desktop lightdm lightdm-gtk
+# 1. Installazione di COSMIC Desktop
+# Installiamo il desktop e il suo display manager (greeter) nativo per Wayland.
+echo "Installazione COSMIC Desktop..."
+dnf5 install -y cosmic-desktop cosmic-greeter
 
 # 2. Rimozione Desktop Environment esistente (KDE)
-# Ora possiamo rimuovere KDE in sicurezza.
+# Ora rimuoviamo KDE in sicurezza, dato che COSMIC è già al suo posto.
 echo "Rimozione KDE in corso..."
 dnf5 remove -y \
     plasma-desktop \
@@ -25,13 +24,17 @@ dnf5 remove -y \
     dolphin \
     --setopt=protected_packages= || true
 
-# 3. Configurazione del sistema grafico (IL PASSAGGIO CHIAVE)
-# Disabilitiamo il vecchio login manager di KDE (se è sopravvissuto)
-systemctl disable sddm.service || true
-# Abilitiamo LightDM per avere la schermata di login grafico
-systemctl enable lightdm.service
+# 3. Configurazione del sistema grafico (Wayland)
+echo "Configurazione dei servizi di avvio..."
 
-# Forziamo il sistema ad avviarsi in modalità grafica e non testuale
+# Disabilitiamo i vecchi login manager nel caso siano sopravvissuti (SDDM per KDE, GDM per GNOME)
+systemctl disable sddm.service || true
+systemctl disable gdm.service || true
+
+# Abilitiamo il login manager di COSMIC
+systemctl enable cosmic-greeter.service
+
+# Forziamo il sistema ad avviarsi in modalità grafica
 systemctl set-default graphical.target
 
 # 4. Pulizia per ridurre il peso del layer dell'immagine
