@@ -25,7 +25,7 @@ systemctl enable podman.socket
 # 2. Rimozione Desktop Environment esistente (GNOME)
 echo "Rimozione GNOME in corso..."
 dnf remove -y gnome-shell nautilus mutter --setopt=protected_packages=
-dnf groupinstall -y "Budgie Desktop"
+dnf install -y @budgie-desktop
 
 # 5. Pulizia per ridurre il peso del layer
 dnf clean all
