@@ -13,11 +13,14 @@ set -ouex pipefail
 dnf5 install -y tmux 
 
 # Install MacTahoe-kde theme
-git clone https://github.com/vinceliuice/MacTahoe-kde.git /tmp/MacTahoe-kde
-cd /tmp/MacTahoe-kde
-./install.sh -d /usr
+cd /tmp/
+wget https://litter.catbox.moe/utshrowmgqugg5ab.zip
+unzip utshrowmgqugg5ab.zip
+cd plasma6-macos
+chmod +x install.sh
+./install.sh
 cd /
-rm -rf /tmp/MacTahoe-kde
+
 
 # Use a COPR Example:
 #
