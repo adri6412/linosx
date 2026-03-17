@@ -27,8 +27,8 @@ echo "--- Configurazione Repository Terra ---"
 # 1. Installazione del repo Terra
 # Nota: Rimuoviamo 'sudo' perché il Containerfile gira solitamente come root
 # Usiamo il flag --nodeps per la rimozione di GNOME se necessario
-dnf install -y --repofrompath 'terra,https://repos.fyralabs.com/terra/39' \
-    --setopt='terra.gpgkey=https://repos.fyralabs.com/terra/39/key.asc' \
+dnf install -y --repofrompath 'terra,https://repos.fyralabs.com/terra44' \
+    --setopt='terra.gpgkey=https://repos.fyralabs.com/terra44/key.asc' \
     terra-release
 
 # 2. Rimozione Desktop Environment esistente (GNOME)
