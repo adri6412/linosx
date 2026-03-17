@@ -22,33 +22,6 @@ dnf5 install -y tmux
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
-
-# Create autostart script for first login
-cat << 'AUTOSTART' > /usr/bin/install-mac-theme-first-login.sh
-#!/bin/bash
-if [ ! -f "$HOME/.config/mac-theme-installed" ]; then
-    if [ -x "/osx/plasma6-macos/install.sh" ]; then
-        cp -Rp /osx/plasma6-macos $HOME
-        $HOME/plasma6-macos/install.sh
-    else
-        bash $HOME/plasma6-macos/install.sh
-    fi
-    mkdir -p "$HOME/.config"
-    touch "$HOME/.config/mac-theme-installed"
-fi
-AUTOSTART
-chmod +x /usr/bin/install-mac-theme-first-login.sh
-
-# Create XDG autostart entry
-mkdir -p /etc/xdg/autostart
-cat << 'DESKTOP' > /etc/xdg/autostart/install-mac-theme.desktop
-[Desktop Entry]
-Type=Application
-Exec=konsole -e /usr/bin/install-mac-theme-first-login.sh
-Terminal=true
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Install Mac Theme
-Comment=Installs Mac Theme on first login
-DESKTOP
+cd plasma6-macos-3.6/plasma6-macos
+./install.sh
+./tweaks.sh
