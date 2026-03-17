@@ -36,9 +36,10 @@ cat << 'AUTOSTART' > /usr/bin/install-mac-theme-first-login.sh
 #!/bin/bash
 if [ ! -f "$HOME/.config/mac-theme-installed" ]; then
     if [ -x "/osx/plasma6-macos-3.6/install.sh" ]; then
-        /osx/plasma6-macos-3.6/install.sh
+        cp -Rp /osx/plasma6-macos-3.6 $HOME
+        $HOME/plasma6-macos-3.6/install.sh
     else
-        bash /osx/plasma6-macos-3.6/install.sh
+        bash $HOME/plasma6-macos-3.6/install.sh
     fi
     mkdir -p "$HOME/.config"
     touch "$HOME/.config/mac-theme-installed"
