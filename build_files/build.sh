@@ -12,7 +12,7 @@ dnf5 install -y tmux
 # Installiamo il desktop e il suo display manager (greeter) nativo per Wayland.
 echo "Installazione COSMIC Desktop..."
 #sudo dnf copr enable ryanabx/cosmic-epoch
-dnf group install cosmic
+dnf install @cosmic-desktop-environment
 # 2. Rimozione Desktop Environment esistente (KDE)
 # Ora rimuoviamo KDE in sicurezza, dato che COSMIC è già al suo posto.
 echo "Rimozione KDE in corso..."
