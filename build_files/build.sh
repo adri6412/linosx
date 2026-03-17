@@ -53,6 +53,7 @@ cat << 'DESKTOP' > /etc/xdg/autostart/install-mac-theme.desktop
 [Desktop Entry]
 Type=Application
 Exec=/usr/bin/install-mac-theme-first-login.sh
+Terminal=true
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
