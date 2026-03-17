@@ -37,7 +37,7 @@ dnf remove -y gnome-shell nautilus mutter --setopt=protected_packages=
 
 # 3. Installazione Pantheon Desktop
 echo "Installazione Pantheon via Terra..."
-dnf groupinstall -y "pantheon-desktop"
+sudo dnf group install 'pantheon desktop' -y
 
 # 4. Installazione componenti extra spesso mancanti
 dnf install -y \
