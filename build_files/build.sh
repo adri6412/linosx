@@ -22,30 +22,34 @@ dnf5 install -y tmux
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
-echo "--- Inizio configurazione ambiente Pantheon ---"
+echo "--- Configurazione Repository Terra ---"
 
-# 1. Pulizia dei pacchetti GNOME esistenti
-# In un container, dnf remove è più rapido di rpm-ostree
-echo "Rimozione dei componenti GNOME..."
-dnf remove -y \
-    gnome-shell \
-    gnome-session \
-    nautilus \
-    mutter \
+# 1. Installazione del repo Terra
+# Nota: Rimuoviamo 'sudo' perché il Containerfile gira solitamente come root
+# Usiamo il flag --nodeps per la rimozione di GNOME se necessario
+dnf install -y --repofrompath 'terra,https://repos.fyralabs.com/terra/39' \
+    --setopt='terra.gpgkey=https://repos.fyralabs.com/terra/39/key.asc' \
+    terra-release
 
-# 2. Installazione del Desktop Environment Pantheon
-# Il gruppo 'pantheon-desktop' contiene tutto il necessario per elementary OS
-echo "Installazione di Pantheon..."
+# 2. Rimozione Desktop Environment esistente (GNOME)
+echo "Rimozione GNOME in corso..."
+dnf remove -y gnome-shell nautilus mutter --nodeps
+
+# 3. Installazione Pantheon Desktop
+echo "Installazione Pantheon via Terra..."
+dnf groupinstall -y "pantheon-desktop"
+
+# 4. Installazione componenti extra spesso mancanti
 dnf install -y \
-    @pantheon-desktop \
-    pantheon-session-settings \
-    lightdm-pantheon-greeter \
+    pantheon-session \
+    switchboard \
     wingpanel \
-    plank
+    plank \
+    io.elementary.files \
+    io.elementary.terminal
 
-# 3. Pulizia della cache per ridurre la dimensione dell'immagine
-echo "Pulizia post-installazione..."
+# 5. Pulizia per ridurre il peso del layer
 dnf clean all
 rm -rf /var/cache/dnf
 
-echo "--- Installazione completata ---"
+echo "--- Installazione completata con successo ---"
