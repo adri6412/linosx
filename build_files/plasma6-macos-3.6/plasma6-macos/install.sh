@@ -67,6 +67,19 @@ mkdir -p "$SKEL_CONFIG/gtk-4.0"
 ln -sf /usr/share/themes/MacTahoe-Dark/gtk-4.0/assets "$SKEL_CONFIG/gtk-4.0/assets"
 ln -sf /usr/share/themes/MacTahoe-Dark/gtk-4.0/gtk.css "$SKEL_CONFIG/gtk-4.0/gtk.css"
 ln -sf /usr/share/themes/MacTahoe-Dark/gtk-4.0/gtk-dark.css "$SKEL_CONFIG/gtk-4.0/gtk-dark.css"
+# --- 6. SANITIZZAZIONE CONFIGURAZIONI (Indispensabile per nuovi utenti) ---
+echo "🧹 Sanitizzazione profonda dei file di configurazione in /etc/skel..."
+
+# Sostituiamo ogni occorrenza di /home/steve con un segnaposto variabile o con il percorso di sistema
+# KDE supporta l'espansione di alcune variabili, ma la cosa più sicura è puntare alle risorse globali
+find /etc/skel/.config -type f -exec sed -i 's|/home/steve/.local/share/|/usr/share/|g' {} +
+find /etc/skel/.config -type f -exec sed -i 's|/home/steve/|/etc/skel/|g' {} +
+
+# Forza la ricarica del tema globale nel file kdeglobals
+# Assicuriamoci che il nome del tema sia esattamente quello presente in /usr/share/plasma/look-and-feel/
+if [ -f "/etc/skel/.config/kdeglobals" ]; then
+    sed -i 's/^LookAndFeelPackage=.*/LookAndFeelPackage=com.github.vinceliuice.MacSequoia-Dark/' /etc/skel/.config/kdeglobals
+fi
 
 dnf clean all
 echo "✅ Installazione completata. La Navbar e il tema finestre sono ora configurati come default."
