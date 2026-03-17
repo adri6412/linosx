@@ -31,7 +31,8 @@ dnf remove -y \
     konsole \
     dolphin \
     --setopt=protected_packages= || truednf install -y @budgie-desktop
-
+echo "Installazione Budgie Desktop..."
+dnf install -y @budgie-desktop
 # 5. Pulizia per ridurre il peso del layer
 dnf clean all
 rm -rf /var/cache/dnf
