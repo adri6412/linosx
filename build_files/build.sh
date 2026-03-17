@@ -22,31 +22,10 @@ dnf5 install -y tmux
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
-echo "--- Configurazione Repository Terra ---"
-
-# 1. Installazione del repo Terra
-# Nota: Rimuoviamo 'sudo' perché il Containerfile gira solitamente come root
-# Usiamo il flag --nodeps per la rimozione di GNOME se necessario
-dnf install -y --repofrompath 'terra,https://repos.fyralabs.com/terra44' \
-    --setopt='terra.gpgkey=https://repos.fyralabs.com/terra44/key.asc' \
-    terra-release
-
 # 2. Rimozione Desktop Environment esistente (GNOME)
 echo "Rimozione GNOME in corso..."
 dnf remove -y gnome-shell nautilus mutter --setopt=protected_packages=
-
-# 3. Installazione Pantheon Desktop
-echo "Installazione Pantheon via Terra..."
-sudo dnf group install 'pantheon desktop' -y
-
-# 4. Installazione componenti extra spesso mancanti
-dnf install -y \
-    pantheon-session \
-    switchboard \
-    wingpanel \
-    plank \
-    io.elementary.files \
-    io.elementary.terminal
+dnf groupinstall -y "Budgie Desktop"
 
 # 5. Pulizia per ridurre il peso del layer
 dnf clean all
