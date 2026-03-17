@@ -52,7 +52,7 @@ mkdir -p /etc/xdg/autostart
 cat << 'DESKTOP' > /etc/xdg/autostart/install-mac-theme.desktop
 [Desktop Entry]
 Type=Application
-Exec=konsole --hold -e /usr/bin/install-mac-theme-first-login.sh
+Exec=konsole -e /usr/bin/install-mac-theme-first-login.sh
 Terminal=true
 Hidden=false
 NoDisplay=false
