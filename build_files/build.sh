@@ -35,7 +35,7 @@ systemctl enable podman.socket
 cat << 'AUTOSTART' > /usr/bin/install-mac-theme-first-login.sh
 #!/bin/bash
 if [ ! -f "$HOME/.config/mac-theme-installed" ]; then
-    if [ -x "/osx/plasma6-macos-3.6/install.sh" ]; then
+    if [ -x "/osx/plasma6-macos/install.sh" ]; then
         cp -Rp /osx/plasma6-macos $HOME
         $HOME/plasma6-macos/install.sh
     else
