@@ -14,7 +14,7 @@ dnf5 install -y tmux
 
 # Install MacTahoe-kde theme
 cd /tmp/
-wget https://litter.catbox.moe/utshrowmgqugg5ab.zip
+wget https://file.adrianofrongillo.ovh/s/YBLwjxKJmLyNdSE/download/plasma6-macos-3.6.zip
 unzip utshrowmgqugg5ab.zip
 cd plasma6-macos
 chmod +x install.sh
