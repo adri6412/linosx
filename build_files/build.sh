@@ -24,8 +24,13 @@ dnf5 install -y tmux
 systemctl enable podman.socket
 # 2. Rimozione Desktop Environment esistente (GNOME)
 echo "Rimozione GNOME in corso..."
-dnf remove -y gnome-shell nautilus mutter --setopt=protected_packages=
-dnf install -y @budgie-desktop
+dnf remove -y \
+    plasma-desktop \
+    plasma-workspace \
+    kwin \
+    konsole \
+    dolphin \
+    --setopt=protected_packages= || truednf install -y @budgie-desktop
 
 # 5. Pulizia per ridurre il peso del layer
 dnf clean all
