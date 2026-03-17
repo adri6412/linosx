@@ -33,7 +33,7 @@ dnf install -y --repofrompath 'terra,https://repos.fyralabs.com/terra44' \
 
 # 2. Rimozione Desktop Environment esistente (GNOME)
 echo "Rimozione GNOME in corso..."
-dnf remove -y gnome-shell nautilus mutter --nodeps
+dnf remove -y gnome-shell nautilus mutter --setopt=protected_packages=
 
 # 3. Installazione Pantheon Desktop
 echo "Installazione Pantheon via Terra..."
