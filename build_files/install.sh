@@ -1,26 +1,31 @@
 #!/bin/bash
+set -e
 
-# 1. Rimuovere i gruppi di pacchetti GNOME (ambiente di default di Bluefin)
-echo "Rimozione dell'ambiente desktop GNOME in corso..."
-# Nota: Su sistemi Atomic, spesso è meglio fare il 'rebase' o l'override
-rpm-ostree override remove \
+echo "--- Inizio configurazione ambiente Pantheon ---"
+
+# 1. Pulizia dei pacchetti GNOME esistenti
+# In un container, dnf remove è più rapido di rpm-ostree
+echo "Rimozione dei componenti GNOME..."
+dnf remove -y \
     gnome-shell \
+    gnome-session \
     nautilus \
-    gnome-terminal-nautilus \
-    --required
+    mutter \
+    --nodeps
 
-# 2. Aggiungere i repository necessari (se richiesti) e installare Pantheon
-echo "Installazione di Pantheon Desktop..."
-# Pantheon su Fedora è disponibile tramite i gruppi di pacchetti
-rpm-ostree install \
+# 2. Installazione del Desktop Environment Pantheon
+# Il gruppo 'pantheon-desktop' contiene tutto il necessario per elementary OS
+echo "Installazione di Pantheon..."
+dnf install -y \
+    @pantheon-desktop \
     pantheon-session-settings \
-    pantheon-desktop \
-    gala \
+    lightdm-pantheon-greeter \
     wingpanel \
-    plank \
-    switchboard
+    plank
 
-# 3. Impostare il target grafico
-systemctl set-default graphical.target
+# 3. Pulizia della cache per ridurre la dimensione dell'immagine
+echo "Pulizia post-installazione..."
+dnf clean all
+rm -rf /var/cache/dnf
 
-echo "Procedura completata. Ricorda che le modifiche rpm-ostree richiedono un riavvio per essere effettive."
+echo "--- Installazione completata ---"
