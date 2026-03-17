@@ -1,40 +1,43 @@
 #!/bin/bash
 
+# Rende lo script rigoroso: si ferma se c'è un errore critico
 set -ouex pipefail
 
 ### Install packages
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
-
-# this installs a package from fedora repos
+# Questo installa tmux (dal tuo script originale)
 dnf5 install -y tmux 
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+# 1. Installazione del nuovo Desktop e del Display Manager
+# Installiamo Budgie e LightDM PRIMA di rimuovere KDE, 
+# per assicurarci che lo stack grafico rimanga intatto.
+echo "Installazione Budgie Desktop e LightDM..."
+dnf5 install -y @budgie-desktop lightdm lightdm-gtk
 
-#### Example for enabling a System Unit File
-
-systemctl enable podman.socket
-# 2. Rimozione Desktop Environment esistente (GNOME)
-echo "Rimozione GNOME in corso..."
-dnf remove -y \
+# 2. Rimozione Desktop Environment esistente (KDE)
+# Ora possiamo rimuovere KDE in sicurezza.
+echo "Rimozione KDE in corso..."
+dnf5 remove -y \
     plasma-desktop \
     plasma-workspace \
     kwin \
     konsole \
     dolphin \
-    --setopt=protected_packages= || truednf install -y @budgie-desktop
-echo "Installazione Budgie Desktop..."
-dnf install -y @budgie-desktop
-# 5. Pulizia per ridurre il peso del layer
-dnf clean all
+    --setopt=protected_packages= || true
+
+# 3. Configurazione del sistema grafico (IL PASSAGGIO CHIAVE)
+# Disabilitiamo il vecchio login manager di KDE (se è sopravvissuto)
+systemctl disable sddm.service || true
+# Abilitiamo LightDM per avere la schermata di login grafico
+systemctl enable lightdm.service
+
+# Forziamo il sistema ad avviarsi in modalità grafica e non testuale
+systemctl set-default graphical.target
+
+# 4. Pulizia per ridurre il peso del layer dell'immagine
+echo "Pulizia cache..."
+dnf5 clean all
+rm -rf /var/cache/dnf5
 rm -rf /var/cache/dnf
 
-echo "--- Installazione completata con successo ---"
+echo "--- Build dello strato personalizzato completata ---"
