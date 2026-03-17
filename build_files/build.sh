@@ -12,6 +12,13 @@ set -ouex pipefail
 # this installs a package from fedora repos
 dnf5 install -y tmux 
 
+# Install MacTahoe-kde theme
+git clone https://github.com/vinceliuice/MacTahoe-kde.git /tmp/MacTahoe-kde
+cd /tmp/MacTahoe-kde
+./install.sh -d /usr
+cd /
+rm -rf /tmp/MacTahoe-kde
+
 # Use a COPR Example:
 #
 # dnf5 -y copr enable ublue-os/staging
